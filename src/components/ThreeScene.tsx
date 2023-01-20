@@ -5,7 +5,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 const ThreeScene = () => {
   const loadingManager = new THREE.LoadingManager()
   const [startTime, setStartTime] = useState(Date.now())
-  const sceneRef = useRef()
+  const sceneRef = useRef({camera:null, scene:null, renderer:null});
+  // defining this outside of the useEffects so its visible by both
+  let sphereTech = useRef(null)
+  const [usingControl, setUsingControl] = useState(true)
 
   useEffect(() => {
     loadingManager.onStart = function (url) {
@@ -24,11 +27,7 @@ const ThreeScene = () => {
       console.error(`Loading Error : ${url}`)
     }
 
-    const camera = new THREE.PerspectiveCamera(
-      70,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      4000
+    const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 4000
     )
     camera.position.set(0, 1, 3)
     const scene = new THREE.Scene()
@@ -36,7 +35,7 @@ const ThreeScene = () => {
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.shadowMap.enabled = true
     
-    sceneRef.current = { camera, scene, renderer }
+    // sceneRef.current = { camera, scene, renderer }
 
     const techdiffuse = new THREE.TextureLoader(loadingManager).load(
       'img/textures/techHex.webp'
@@ -50,12 +49,14 @@ const ThreeScene = () => {
       side: THREE.TwoPassDoubleSide,
     })
 
+    // GEOMETRY
     const techgeometry = new THREE.SphereGeometry(1.5, 64, 64)
-    const sphereTech = new THREE.Mesh(techgeometry, techMaterial)
+    let sphereTech = new THREE.Mesh(techgeometry, techMaterial)
     sphereTech.name = 'techsphere'
     sphereTech.position.set(0, 0, -1)
     scene.add(sphereTech)
 
+    // LIGHTS
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.5)
     dirLight.castShadow = true
     dirLight.position.set(3, 1, 2).normalize()
@@ -65,7 +66,7 @@ const ThreeScene = () => {
     scene.add(amblight)
 
     const usingControl = true
-    var controls = new OrbitControls(camera, renderer.domElement)
+    const controls = new OrbitControls(camera, renderer.domElement)
 
     if (usingControl) {
       controls.enableZoom = true
@@ -75,10 +76,12 @@ const ThreeScene = () => {
     }
     
     document.body.appendChild(renderer.domElement)
-    animate()
-  }, [])
+    // animate()
+    
+  }, [sceneRef])
 
   useEffect(() => {
+
     const { camera, scene, renderer } = sceneRef.current
     animate()
 
@@ -88,9 +91,7 @@ const ThreeScene = () => {
     
       sphereTech.rotation.y = time / -100000
     
-      if (usingControl) {
-        controls.update()
-      }
+      if (usingControl) controls.update()
     
       renderer.render(scene, camera)
       requestAnimationFrame(animate)
