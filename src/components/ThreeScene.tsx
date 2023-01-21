@@ -9,6 +9,7 @@ const ThreeScene = () => {
   // defining this outside of the useEffects so its visible by both
   let sphereTech = useRef(null)
   const [usingControl, setUsingControl] = useState(true)
+  const rendererRef = useRef<THREE.WebGLRenderer>(null);
 
   useEffect(() => {
     loadingManager.onStart = function (url) {
@@ -32,6 +33,10 @@ const ThreeScene = () => {
     camera.position.set(0, 1, 3)
     const scene = new THREE.Scene()
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+    // Typescript shenanigans: 
+    // Maybe this is the fix?
+    //https://www.designcise.com/web/tutorial/how-to-fix-useref-react-hook-cannot-assign-to-read-only-property-typescript-error
+    rendererRef.current = renderer;
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.shadowMap.enabled = true
     
@@ -83,7 +88,6 @@ const ThreeScene = () => {
   useEffect(() => {
 
     const { camera, scene, renderer } = sceneRef.current
-    animate()
 
     function animate() {
       const currentTime = Date.now()
@@ -93,15 +97,16 @@ const ThreeScene = () => {
     
       if (usingControl) controls.update()
     
-      renderer.render(scene, camera)
+      rendererRef.render(scene, camera)
       requestAnimationFrame(animate)
     }
     return () => {
       // gets rid of the things after, even tho they don't work
-      renderer.dispose()
+      rendererRef.current.dispose()
       scene.dispose()
     }
-    }, [startTime])
+    animate()
+    }, [startTime, rendererRef])
 
 return <div />
 }

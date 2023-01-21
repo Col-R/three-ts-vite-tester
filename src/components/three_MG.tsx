@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 let startTime = Date.now()
+console.log('starting')
 
 //#region LOADING
 const loadingManager = new THREE.LoadingManager();
@@ -36,7 +37,7 @@ document.body.appendChild(renderer.domElement)
 
 //#region TEXTURE LOADING
 
-const techdiffuse = new THREE.TextureLoader(loadingManager).load('img/textures/techHex.webp');
+const techdiffuse = new THREE.TextureLoader(loadingManager).load("/img/textures/techHex.webp");
 
 //#endregion
 

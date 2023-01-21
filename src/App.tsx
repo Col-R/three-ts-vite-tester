@@ -9,6 +9,7 @@ const App = () => {
     <div>
       <ThreeScene />
     </div>
+    
   )
 }
 export default App;
