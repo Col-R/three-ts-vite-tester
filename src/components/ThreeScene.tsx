@@ -7,9 +7,13 @@ const ThreeScene = () => {
   const [startTime, setStartTime] = useState(Date.now())
   const sceneRef = useRef({camera:null, scene:null, renderer:null});
   // defining this outside of the useEffects so its visible by both
-  let sphereTech = useRef(null)
+  let sphereTech = new THREE.Mesh();
   const [usingControl, setUsingControl] = useState(true)
-  const rendererRef = useRef<THREE.WebGLRenderer>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer>();
+  const controlsRef = useRef<OrbitControls>();
+
+  const scene = new THREE.Scene()
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
 
   useEffect(() => {
     loadingManager.onStart = function (url) {
@@ -31,12 +35,14 @@ const ThreeScene = () => {
     const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 4000
     )
     camera.position.set(0, 1, 3)
-    const scene = new THREE.Scene()
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+
     // Typescript shenanigans: 
     // Maybe this is the fix?
     //https://www.designcise.com/web/tutorial/how-to-fix-useref-react-hook-cannot-assign-to-read-only-property-typescript-error
+
+
     rendererRef.current = renderer;
+    
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.shadowMap.enabled = true
     
@@ -56,7 +62,7 @@ const ThreeScene = () => {
 
     // GEOMETRY
     const techgeometry = new THREE.SphereGeometry(1.5, 64, 64)
-    let sphereTech = new THREE.Mesh(techgeometry, techMaterial)
+    sphereTech = new THREE.Mesh(techgeometry, techMaterial)
     sphereTech.name = 'techsphere'
     sphereTech.position.set(0, 0, -1)
     scene.add(sphereTech)
@@ -71,13 +77,13 @@ const ThreeScene = () => {
     scene.add(amblight)
 
     const usingControl = true
-    const controls = new OrbitControls(camera, renderer.domElement)
-
+    
+    controlsRef.current = new OrbitControls(camera, renderer.domElement);
     if (usingControl) {
-      controls.enableZoom = true
-      controls.enableRotate = true
-      controls.enablePan = true
-      controls.target.set(0, 0, 0)
+      controlsRef.current.enableZoom = true
+      controlsRef.current.enableRotate = true
+      controlsRef.current.enablePan = true
+      controlsRef.current.target.set(0, 0, 0)
     }
     
     document.body.appendChild(renderer.domElement)
@@ -87,7 +93,7 @@ const ThreeScene = () => {
 
   useEffect(() => {
 
-    const { camera, scene, renderer } = sceneRef.current
+    const { camera, scene} = sceneRef.current
 
     function animate() {
       const currentTime = Date.now()
@@ -95,18 +101,18 @@ const ThreeScene = () => {
     
       sphereTech.rotation.y = time / -100000
     
-      if (usingControl) controls.update()
+      if (usingControl && controlsRef.current) {
+        controlsRef.current.update()
+      }
     
       rendererRef.render(scene, camera)
+
       requestAnimationFrame(animate)
     }
     return () => {
-      // gets rid of the things after, even tho they don't work
-      rendererRef.current.dispose()
-      scene.dispose()
     }
     animate()
-    }, [startTime, rendererRef])
+    }, [startTime])
 
 return <div />
 }
