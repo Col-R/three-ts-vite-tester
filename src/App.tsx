@@ -7,9 +7,9 @@ const App = () => {
 
   return (
     <div>
+      <canvas className='webgl'></canvas>
       <ThreeScene />
     </div>
-    
   )
 }
 export default App;

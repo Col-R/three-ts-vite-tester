@@ -3,19 +3,22 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 const ThreeScene = () => {
+  const canvas = document.getElementsByClassName<HTMLElement>('.webgl')
+
+
   const loadingManager = new THREE.LoadingManager()
   const [startTime, setStartTime] = useState(Date.now())
   const sceneRef = useRef({camera:null, scene:null, renderer:null});
-  // defining this outside of the useEffects so its visible by both
   let sphereTech = new THREE.Mesh();
   const [usingControl, setUsingControl] = useState(true)
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const controlsRef = useRef<OrbitControls>();
 
   const scene = new THREE.Scene()
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
+  const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true })
 
   useEffect(() => {
+    console.log(canvas)
     loadingManager.onStart = function (url) {
       console.log(`Started loading: ${url}`)
     }
@@ -85,15 +88,16 @@ const ThreeScene = () => {
       controlsRef.current.enablePan = true
       controlsRef.current.target.set(0, 0, 0)
     }
+    console.log(usingControl)
     
     document.body.appendChild(renderer.domElement)
     // animate()
+
     
-  }, [sceneRef])
+  }, [])
 
   useEffect(() => {
-
-    const { camera, scene} = sceneRef.current
+    const { camera, scene} = sceneRef.current;
 
     function animate() {
       const currentTime = Date.now()
@@ -105,14 +109,15 @@ const ThreeScene = () => {
         controlsRef.current.update()
       }
     
-      rendererRef.render(scene, camera)
+      if(camera && scene) renderer.render(scene,camera)
 
       requestAnimationFrame(animate)
     }
+    animate()
     return () => {
     }
-    animate()
-    }, [startTime])
+    
+    }, [])
 
 return <div />
 }
