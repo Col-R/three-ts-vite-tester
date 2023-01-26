@@ -8,7 +8,7 @@ import Text from './components/Text';
 import Fiber_Three from './three/Fiber_Three';
 
 import { Canvas} from '@react-three/fiber'
-import { OrbitControls} from '@react-three/drei'
+import { OrbitControls, PerspectiveCamera} from '@react-three/drei'
 
 
 const App = () => {
@@ -20,8 +20,8 @@ const App = () => {
         <Text />
 
         <Canvas className = 'canvas'>
-          
-          <OrbitControls enableZoom={true}/>
+          <PerspectiveCamera makeDefault position={[0, 0, 5]} />
+          <OrbitControls enableZoom={true} enablePan={true}/>
           <ambientLight intensity={0.5} />
           <directionalLight position = {[-2, 5, 2]} intensity={0.5} color={0xffffff} castShadow={true}/>
             <Suspense fallback={null}>
